@@ -1,0 +1,490 @@
+{% extends "base.html" %}
+
+{% block title %}Calendrier - CycleCare{% endblock %}
+
+{% block extra_css %}
+<style>
+.calendar-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.calendar-header {
+    background: #495057;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.calendar-day {
+    background: white;
+    min-height: 80px;
+    padding: 0.5rem;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.calendar-day:hover {
+    background: #f8f9fa;
+    transform: scale(1.02);
+}
+
+.calendar-day.other-month {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.calendar-day.today {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    font-weight: bold;
+}
+
+.calendar-day.period {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+}
+
+.calendar-day.ovulation {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.calendar-day.fertile {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.day-number {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.day-indicators {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+
+.indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.indicator.period { background: #dc3545; }
+.indicator.ovulation { background: #ffc107; }
+.indicator.fertile { background: #20c997; }
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    margin-right: 0.5rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card card-3d">
+            <div class="card-header bg-gradient-info text-white d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    Calendrier des Cycles
+                </h3>
+                <div class="btn-group">
+                    <button class="btn btn-light btn-sm btn-3d" onclick="previousMonth()">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="btn btn-light btn-sm btn-3d" onclick="nextMonth()">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Légende -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card card-3d">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-info-circle text-primary me-2"></i>
+                    Légende
+                </h6>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);"></div>
+                            <span>Période menstruelle</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);"></div>
+                            <span>Ovulation</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);"></div>
+                            <span>Fenêtre fertile</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border: 2px solid #fd7e14;"></div>
+                            <span>Aujourd'hui</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-3d">
+            <div class="card-body text-center">
+                <h6 class="fw-bold mb-2">
+                    <i class="fas fa-calendar-day text-success me-2"></i>
+                    Mois actuel
+                </h6>
+                <h4 class="text-primary mb-0" id="currentMonth"></h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Calendrier -->
+<div class="row">
+    <div class="col-12">
+        <div class="calendar-container">
+            <div class="calendar-grid" id="calendar">
+                <!-- Le calendrier sera généré par JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informations du jour sélectionné -->
+<div class="row">
+    <div class="col-12">
+        <div class="card card-3d" id="dayInfo" style="display: none;">
+            <div class="card-header bg-gradient-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Informations du <span id="selectedDate"></span>
+                </h5>
+            </div>
+            <div class="card-body" id="dayInfoContent">
+                <!-- Contenu généré dynamiquement -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Prochains événements -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card card-3d">
+            <div class="card-header bg-gradient-warning text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    Prochains événements
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="upcomingEvents">
+                    <!-- Événements générés par JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Données des cycles passées depuis le serveur
+const cycleData = {{ calendar_data | tojson }};
+
+let currentDate = new Date();
+let currentMonth = currentDate.getMonth();
+let currentYear = currentDate.getFullYear();
+
+const monthNames = [
+    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+];
+
+const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+
+function generateCalendar(month, year) {
+    const calendar = document.getElementById('calendar');
+    const currentMonthElement = document.getElementById('currentMonth');
+    
+    calendar.innerHTML = '';
+    currentMonthElement.textContent = `${monthNames[month]} ${year}`;
+    
+    // En-têtes des jours
+    dayNames.forEach(day => {
+        const header = document.createElement('div');
+        header.className = 'calendar-header';
+        header.textContent = day;
+        calendar.appendChild(header);
+    });
+    
+    // Premier jour du mois et nombre de jours
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+    
+    // Jours du mois précédent
+    for (let i = firstDay - 1; i >= 0; i--) {
+        const day = daysInPrevMonth - i;
+        const dayElement = createDayElement(day, month - 1, year, true);
+        calendar.appendChild(dayElement);
+    }
+    
+    // Jours du mois actuel
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayElement = createDayElement(day, month, year, false);
+        calendar.appendChild(dayElement);
+    }
+    
+    // Jours du mois suivant pour compléter la grille
+    const totalCells = calendar.children.length - 7; // -7 pour les en-têtes
+    const remainingCells = 42 - totalCells; // 6 semaines * 7 jours
+    
+    for (let day = 1; day <= remainingCells; day++) {
+        const dayElement = createDayElement(day, month + 1, year, true);
+        calendar.appendChild(dayElement);
+    }
+}
+
+function createDayElement(day, month, year, isOtherMonth) {
+    const dayElement = document.createElement('div');
+    dayElement.className = 'calendar-day';
+    
+    if (isOtherMonth) {
+        dayElement.classList.add('other-month');
+    }
+    
+    const date = new Date(year, month, day);
+    const dateString = date.toISOString().split('T')[0];
+    
+    // Vérifier si c'est aujourd'hui
+    const today = new Date();
+    if (date.toDateString() === today.toDateString()) {
+        dayElement.classList.add('today');
+    }
+    
+    // Vérifier les événements du cycle
+    const events = getEventsForDate(dateString);
+    
+    if (events.period) dayElement.classList.add('period');
+    if (events.ovulation) dayElement.classList.add('ovulation');
+    if (events.fertile) dayElement.classList.add('fertile');
+    
+    dayElement.innerHTML = `
+        <div class="day-number">${day}</div>
+        <div class="day-indicators">
+            ${events.period ? '<span class="indicator period" title="Période menstruelle"></span>' : ''}
+            ${events.ovulation ? '<span class="indicator ovulation" title="Ovulation"></span>' : ''}
+            ${events.fertile ? '<span class="indicator fertile" title="Fenêtre fertile"></span>' : ''}
+        </div>
+    `;
+    
+    dayElement.addEventListener('click', () => showDayInfo(date, events));
+    
+    return dayElement;
+}
+
+function getEventsForDate(dateString) {
+    const events = {
+        period: false,
+        ovulation: false,
+        fertile: false,
+        cycleInfo: null
+    };
+    
+    cycleData.forEach(cycle => {
+        const startDate = new Date(cycle.start_date);
+        const endDate = cycle.end_date ? new Date(cycle.end_date) : new Date(startDate.getTime() + (cycle.period_length - 1) * 24 * 60 * 60 * 1000);
+        const ovulationDate = new Date(cycle.ovulation_date);
+        const fertileStart = new Date(cycle.fertile_start);
+        const fertileEnd = new Date(cycle.fertile_end);
+        const currentDate = new Date(dateString);
+        
+        // Période menstruelle
+        if (currentDate >= startDate && currentDate <= endDate) {
+            events.period = true;
+            events.cycleInfo = cycle;
+        }
+        
+        // Ovulation
+        if (currentDate.toDateString() === ovulationDate.toDateString()) {
+            events.ovulation = true;
+            events.cycleInfo = cycle;
+        }
+        
+        // Fenêtre fertile
+        if (currentDate >= fertileStart && currentDate <= fertileEnd) {
+            events.fertile = true;
+            if (!events.cycleInfo) events.cycleInfo = cycle;
+        }
+    });
+    
+    return events;
+}
+
+function showDayInfo(date, events) {
+    const dayInfo = document.getElementById('dayInfo');
+    const selectedDate = document.getElementById('selectedDate');
+    const dayInfoContent = document.getElementById('dayInfoContent');
+    
+    selectedDate.textContent = date.toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    let content = '<div class="row">';
+    
+    if (events.period || events.ovulation || events.fertile) {
+        content += '<div class="col-md-6">';
+        content += '<h6 class="fw-bold text-primary mb-3"><i class="fas fa-calendar-check me-2"></i>Événements du jour</h6>';
+        
+        if (events.period) {
+            content += '<div class="alert alert-danger alert-sm mb-2"><i class="fas fa-tint me-2"></i>Période menstruelle</div>';
+        }
+        if (events.ovulation) {
+            content += '<div class="alert alert-warning alert-sm mb-2"><i class="fas fa-egg me-2"></i>Jour d\'ovulation</div>';
+        }
+        if (events.fertile) {
+            content += '<div class="alert alert-success alert-sm mb-2"><i class="fas fa-heart me-2"></i>Fenêtre fertile</div>';
+        }
+        
+        content += '</div>';
+        
+        if (events.cycleInfo) {
+            content += '<div class="col-md-6">';
+            content += '<h6 class="fw-bold text-secondary mb-3"><i class="fas fa-info-circle me-2"></i>Informations du cycle</h6>';
+            content += `<p class="small mb-1"><strong>Début du cycle:</strong> ${new Date(events.cycleInfo.start_date).toLocaleDateString('fr-FR')}</p>`;
+            content += `<p class="small mb-1"><strong>Durée du cycle:</strong> ${events.cycleInfo.cycle_length} jours</p>`;
+            if (events.cycleInfo.mood) {
+                content += `<p class="small mb-1"><strong>Humeur:</strong> ${events.cycleInfo.mood}</p>`;
+            }
+            if (events.cycleInfo.symptoms) {
+                content += `<p class="small mb-0"><strong>Symptômes:</strong> ${events.cycleInfo.symptoms}</p>`;
+            }
+            content += '</div>';
+        }
+    } else {
+        content += '<div class="col-12 text-center text-muted">';
+        content += '<i class="fas fa-calendar-day fa-3x mb-3"></i>';
+        content += '<p>Aucun événement enregistré pour cette date</p>';
+        content += '</div>';
+    }
+    
+    content += '</div>';
+    dayInfoContent.innerHTML = content;
+    dayInfo.style.display = 'block';
+}
+
+function generateUpcomingEvents() {
+    const upcomingEvents = document.getElementById('upcomingEvents');
+    const today = new Date();
+    const events = [];
+    
+    // Chercher les prochains événements dans les 30 prochains jours
+    for (let i = 0; i < 30; i++) {
+        const date = new Date(today.getTime() + i * 24 * 60 * 60 * 1000);
+        const dateString = date.toISOString().split('T')[0];
+        const dayEvents = getEventsForDate(dateString);
+        
+        if (dayEvents.period || dayEvents.ovulation || dayEvents.fertile) {
+            events.push({
+                date: date,
+                events: dayEvents,
+                daysFromNow: i
+            });
+        }
+    }
+    
+    if (events.length === 0) {
+        upcomingEvents.innerHTML = '<p class="text-muted text-center">Aucun événement prévu dans les 30 prochains jours</p>';
+        return;
+    }
+    
+    let content = '<div class="row">';
+    events.slice(0, 6).forEach((event, index) => {
+        content += '<div class="col-md-4 mb-3">';
+        content += '<div class="card h-100">';
+        content += '<div class="card-body text-center">';
+        content += `<h6 class="card-title">${event.date.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' })}</h6>`;
+        
+        if (event.events.period) {
+            content += '<span class="badge bg-danger mb-1">Période</span><br>';
+        }
+        if (event.events.ovulation) {
+            content += '<span class="badge bg-warning mb-1">Ovulation</span><br>';
+        }
+        if (event.events.fertile) {
+            content += '<span class="badge bg-success mb-1">Fertile</span><br>';
+        }
+        
+        content += `<small class="text-muted">${event.daysFromNow === 0 ? 'Aujourd\'hui' : `Dans ${event.daysFromNow} jour${event.daysFromNow > 1 ? 's' : ''}`}</small>`;
+        content += '</div></div></div>';
+    });
+    content += '</div>';
+    
+    upcomingEvents.innerHTML = content;
+}
+
+function previousMonth() {
+    currentMonth--;
+    if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+    }
+    generateCalendar(currentMonth, currentYear);
+}
+
+function nextMonth() {
+    currentMonth++;
+    if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+    }
+    generateCalendar(currentMonth, currentYear);
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    generateCalendar(currentMonth, currentYear);
+    generateUpcomingEvents();
+});
+</script>
+{% endblock %}

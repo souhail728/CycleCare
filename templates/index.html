@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de Bord - CycleCare{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Hero Section -->
+    <div class="col-12 mb-4">
+        <div class="hero-card card-3d text-center">
+            <div class="card-body p-5">
+                <h1 class="display-4 fw-bold text-gradient mb-3">
+                    <i class="fas fa-heart text-pink me-3"></i>
+                    Bienvenue sur CycleCare
+                </h1>
+                <p class="lead text-muted">Suivez votre cycle menstruel avec précision et élégance</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if latest_cycle %}
+<div class="row">
+    <!-- Phase Actuelle -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card card-3d h-100 phase-card">
+            <div class="card-body text-center">
+                <div class="phase-icon mb-3">
+                    {% if current_phase == 'Menstruation' %}
+                        <i class="fas fa-tint text-danger fa-3x"></i>
+                    {% elif current_phase == 'Ovulation' %}
+                        <i class="fas fa-egg text-warning fa-3x"></i>
+                    {% elif current_phase == 'Phase folliculaire' %}
+                        <i class="fas fa-seedling text-success fa-3x"></i>
+                    {% else %}
+                        <i class="fas fa-moon text-info fa-3x"></i>
+                    {% endif %}
+                </div>
+                <h5 class="card-title fw-bold">Phase Actuelle</h5>
+                <h3 class="text-primary">{{ current_phase or 'Non définie' }}</h3>
+                <p class="text-muted small">Basé sur votre dernier cycle</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prochaine Période -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card card-3d h-100 next-period-card">
+            <div class="card-body text-center">
+                <div class="period-icon mb-3">
+                    <i class="fas fa-calendar-check text-primary fa-3x"></i>
+                </div>
+                <h5 class="card-title fw-bold">Prochaine Période</h5>
+                {% if next_period %}
+                    <h3 class="text-danger">{{ next_period.strftime('%d/%m/%Y') }}</h3>
+                    <p class="text-muted small">
+                        {% if days_to_next_period > 0 %}
+                            Dans {{ days_to_next_period }} jours
+                        {% elif days_to_next_period == 0 %}
+                            Aujourd'hui
+                        {% else %}
+                            En retard de {{ -days_to_next_period }} jours
+                        {% endif %}
+                    </p>
+                {% else %}
+                    <h3 class="text-muted">Non calculée</h3>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Ovulation -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card card-3d h-100 ovulation-card">
+            <div class="card-body text-center">
+                <div class="ovulation-icon mb-3">
+                    <i class="fas fa-egg text-warning fa-3x"></i>
+                </div>
+                <h5 class="card-title fw-bold">Ovulation</h5>
+                {% if ovulation_date %}
+                    <h3 class="text-warning">{{ ovulation_date.strftime('%d/%m/%Y') }}</h3>
+                    {% if days_to_ovulation > 0 %}
+                        <p class="text-muted small">Dans {{ days_to_ovulation }} jours</p>
+                    {% elif days_to_ovulation == 0 %}
+                        <p class="text-success small fw-bold">Aujourd'hui!</p>
+                    {% else %}
+                        <p class="text-muted small">Il y a {{ -days_to_ovulation }} jours</p>
+                    {% endif %}
+                {% else %}
+                    <h3 class="text-muted">Non calculée</h3>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fenêtre Fertile -->
+{% if fertile_window %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card card-3d fertile-window-card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-2 text-center">
+                        <i class="fas fa-heart text-pink fa-3x"></i>
+                    </div>
+                    <div class="col-md-10">
+                        <h5 class="card-title fw-bold mb-2">
+                            <i class="fas fa-calendar-heart me-2"></i>
+                            Fenêtre Fertile
+                        </h5>
+                        <p class="mb-2">
+                            <strong>Du {{ fertile_window[0].strftime('%d/%m/%Y') }} au {{ fertile_window[1].strftime('%d/%m/%Y') }}</strong>
+                        </p>
+                        <div class="progress" style="height: 8px;">
+                            {% if is_fertile_today %}
+                                <div class="progress-bar bg-pink progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">
+                            {% if is_fertile_today %}
+                                Vous êtes actuellement dans votre fenêtre fertile
+                            {% else %}
+                                Consultez le calendrier pour plus de détails
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Informations du Dernier Cycle -->
+<div class="row">
+    <div class="col-12">
+        <div class="card card-3d">
+            <div class="card-header bg-gradient-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Dernier Cycle Enregistré
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Date de début:</strong><br>
+                        <span class="text-primary">{{ latest_cycle.start_date.strftime('%d/%m/%Y') }}</span>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Durée du cycle:</strong><br>
+                        <span class="text-info">{{ latest_cycle.cycle_length }} jours</span>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Durée des règles:</strong><br>
+                        <span class="text-danger">{{ latest_cycle.period_length }} jours</span>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Humeur:</strong><br>
+                        <span class="text-success">{{ latest_cycle.mood or 'Non renseignée' }}</span>
+                    </div>
+                </div>
+                {% if latest_cycle.symptoms %}
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <strong>Symptômes:</strong><br>
+                        <span class="text-muted">{{ latest_cycle.symptoms }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- Aucun cycle enregistré -->
+<div class="row">
+    <div class="col-12">
+        <div class="card card-3d text-center">
+            <div class="card-body p-5">
+                <i class="fas fa-calendar-plus text-muted fa-4x mb-4"></i>
+                <h3 class="text-muted mb-3">Aucun cycle enregistré</h3>
+                <p class="text-muted mb-4">Commencez par ajouter votre premier cycle pour bénéficier du suivi personnalisé</p>
+                <a href="{{ url_for('add_cycle') }}" class="btn btn-primary btn-lg btn-3d">
+                    <i class="fas fa-plus me-2"></i>
+                    Ajouter mon premier cycle
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Actions Rapides -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card card-3d">
+            <div class="card-header bg-gradient-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>
+                    Actions Rapides
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('add_cycle') }}" class="btn btn-outline-primary btn-3d w-100">
+                            <i class="fas fa-plus-circle fa-2x d-block mb-2"></i>
+                            Nouveau Cycle
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('calendar') }}" class="btn btn-outline-info btn-3d w-100">
+                            <i class="fas fa-calendar-alt fa-2x d-block mb-2"></i>
+                            Calendrier
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('history') }}" class="btn btn-outline-success btn-3d w-100">
+                            <i class="fas fa-history fa-2x d-block mb-2"></i>
+                            Historique
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-outline-warning btn-3d w-100" onclick="showTips()">
+                            <i class="fas fa-lightbulb fa-2x d-block mb-2"></i>
+                            Conseils
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showTips() {
+    alert('Conseils pour un suivi optimal:\n\n• Enregistrez vos cycles régulièrement\n• Notez vos symptômes et votre humeur\n• Consultez votre médecin en cas d\'irrégularités\n• Utilisez le calendrier pour visualiser vos cycles');
+}
+</script>
+{% endblock %}

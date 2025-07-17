@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Ajouter un Cycle - CycleCare{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card card-3d">
+            <div class="card-header bg-gradient-primary text-white text-center">
+                <h3 class="mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Ajouter un Nouveau Cycle
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" id="cycleForm">
+                    <div class="row">
+                        <!-- Date de début -->
+                        <div class="col-md-6 mb-3">
+                            <label for="start_date" class="form-label fw-bold">
+                                <i class="fas fa-calendar-day text-primary me-2"></i>
+                                Date de début des règles *
+                            </label>
+                            <input type="date" class="form-control form-control-3d" id="start_date" name="start_date" required>
+                            <div class="form-text">Date du premier jour de vos règles</div>
+                        </div>
+
+                        <!-- Date de fin -->
+                        <div class="col-md-6 mb-3">
+                            <label for="end_date" class="form-label fw-bold">
+                                <i class="fas fa-calendar-check text-success me-2"></i>
+                                Date de fin des règles
+                            </label>
+                            <input type="date" class="form-control form-control-3d" id="end_date" name="end_date">
+                            <div class="form-text">Date du dernier jour de vos règles (optionnel)</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Durée du cycle -->
+                        <div class="col-md-6 mb-3">
+                            <label for="cycle_length" class="form-label fw-bold">
+                                <i class="fas fa-clock text-info me-2"></i>
+                                Durée du cycle (jours)
+                            </label>
+                            <input type="number" class="form-control form-control-3d" id="cycle_length" name="cycle_length" 
+                                   value="28" min="21" max="35">
+                            <div class="form-text">Durée habituelle de votre cycle (21-35 jours)</div>
+                        </div>
+
+                        <!-- Durée des règles -->
+                        <div class="col-md-6 mb-3">
+                            <label for="period_length" class="form-label fw-bold">
+                                <i class="fas fa-tint text-danger me-2"></i>
+                                Durée des règles (jours)
+                            </label>
+                            <input type="number" class="form-control form-control-3d" id="period_length" name="period_length" 
+                                   value="5" min="1" max="10">
+                            <div class="form-text">Durée de vos règles (1-10 jours)</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Intensité du flux -->
+                        <div class="col-md-6 mb-3">
+                            <label for="flow_intensity" class="form-label fw-bold">
+                                <i class="fas fa-thermometer-half text-warning me-2"></i>
+                                Intensité du flux
+                            </label>
+                            <select class="form-select form-control-3d" id="flow_intensity" name="flow_intensity">
+                                <option value="">Sélectionner...</option>
+                                <option value="Léger">Léger</option>
+                                <option value="Modéré">Modéré</option>
+                                <option value="Abondant">Abondant</option>
+                                <option value="Très abondant">Très abondant</option>
+                            </select>
+                        </div>
+
+                        <!-- Humeur -->
+                        <div class="col-md-6 mb-3">
+                            <label for="mood" class="form-label fw-bold">
+                                <i class="fas fa-smile text-success me-2"></i>
+                                Humeur générale
+                            </label>
+                            <select class="form-select form-control-3d" id="mood" name="mood">
+                                <option value="">Sélectionner...</option>
+                                <option value="Excellente">😊 Excellente</option>
+                                <option value="Bonne">🙂 Bonne</option>
+                                <option value="Neutre">😐 Neutre</option>
+                                <option value="Irritable">😤 Irritable</option>
+                                <option value="Triste">😢 Triste</option>
+                                <option value="Anxieuse">😰 Anxieuse</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Symptômes -->
+                    <div class="mb-4">
+                        <label for="symptoms" class="form-label fw-bold">
+                            <i class="fas fa-notes-medical text-secondary me-2"></i>
+                            Symptômes et notes
+                        </label>
+                        <textarea class="form-control form-control-3d" id="symptoms" name="symptoms" rows="4" 
+                                  placeholder="Décrivez vos symptômes, douleurs, ou toute autre observation..."></textarea>
+                        <div class="form-text">
+                            Exemples: crampes, maux de tête, sensibilité des seins, fatigue, etc.
+                        </div>
+                    </div>
+
+                    <!-- Conseils -->
+                    <div class="alert alert-info card-3d mb-4">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            Conseils pour un suivi précis
+                        </h6>
+                        <ul class="mb-0 small">
+                            <li>Enregistrez le premier jour de vos règles dès qu'elles commencent</li>
+                            <li>Notez vos symptômes quotidiennement pour identifier des patterns</li>
+                            <li>La durée moyenne d'un cycle est de 28 jours, mais peut varier de 21 à 35 jours</li>
+                            <li>Consultez votre médecin si vous observez des changements importants</li>
+                        </ul>
+                    </div>
+
+                    <!-- Boutons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-3d me-md-2">
+                            <i class="fas fa-times me-2"></i>
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-3d">
+                            <i class="fas fa-save me-2"></i>
+                            Enregistrer le cycle
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Prédictions -->
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="card card-3d">
+            <div class="card-header bg-gradient-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-crystal-ball me-2"></i>
+                    Prédictions basées sur vos données
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="predictions" class="text-center text-muted">
+                    <i class="fas fa-spinner fa-spin me-2"></i>
+                    Sélectionnez une date de début pour voir les prédictions...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    const cycleLengthInput = document.getElementById('cycle_length');
+    const predictionsDiv = document.getElementById('predictions');
+
+    // Définir la date d'aujourd'hui comme maximum pour la date de début
+    const today = new Date().toISOString().split('T')[0];
+    startDateInput.max = today;
+    endDateInput.max = today;
+
+    function updatePredictions() {
+        const startDate = startDateInput.value;
+        const cycleLength = parseInt(cycleLengthInput.value) || 28;
+
+        if (startDate) {
+            const start = new Date(startDate);
+            const ovulation = new Date(start);
+            ovulation.setDate(start.getDate() + cycleLength - 14);
+            
+            const nextPeriod = new Date(start);
+            nextPeriod.setDate(start.getDate() + cycleLength);
+
+            const fertileStart = new Date(ovulation);
+            fertileStart.setDate(ovulation.getDate() - 5);
+            
+            const fertileEnd = new Date(ovulation);
+            fertileEnd.setDate(ovulation.getDate() + 1);
+
+            predictionsDiv.innerHTML = `
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="prediction-item">
+                            <i class="fas fa-egg text-warning fa-2x mb-2"></i>
+                            <h6 class="fw-bold">Ovulation prévue</h6>
+                            <p class="text-warning mb-0">${ovulation.toLocaleDateString('fr-FR')}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="prediction-item">
+                            <i class="fas fa-heart text-pink fa-2x mb-2"></i>
+                            <h6 class="fw-bold">Fenêtre fertile</h6>
+                            <p class="text-pink mb-0">${fertileStart.toLocaleDateString('fr-FR')} - ${fertileEnd.toLocaleDateString('fr-FR')}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="prediction-item">
+                            <i class="fas fa-calendar-check text-primary fa-2x mb-2"></i>
+                            <h6 class="fw-bold">Prochaines règles</h6>
+                            <p class="text-primary mb-0">${nextPeriod.toLocaleDateString('fr-FR')}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            predictionsDiv.innerHTML = `
+                <i class="fas fa-info-circle me-2"></i>
+                Sélectionnez une date de début pour voir les prédictions...
+            `;
+        }
+    }
+
+    // Mettre à jour les prédictions quand les valeurs changent
+    startDateInput.addEventListener('change', updatePredictions);
+    cycleLengthInput.addEventListener('input', updatePredictions);
+
+    // Validation du formulaire
+    document.getElementById('cycleForm').addEventListener('submit', function(e) {
+        const startDate = new Date(startDateInput.value);
+        const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+
+        if (endDate && endDate < startDate) {
+            e.preventDefault();
+            alert('La date de fin ne peut pas être antérieure à la date de début.');
+            return false;
+        }
+
+        if (endDate && (endDate - startDate) / (1000 * 60 * 60 * 24) > 10) {
+            e.preventDefault();
+            alert('La durée des règles ne peut pas dépasser 10 jours.');
+            return false;
+        }
+    });
+
+    // Auto-complétion de la date de fin
+    endDateInput.addEventListener('change', function() {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(this.value);
+        
+        if (startDate && endDate) {
+            const periodLength = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            document.getElementById('period_length').value = periodLength;
+        }
+    });
+});
+</script>
+{% endblock %}

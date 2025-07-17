@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Cycle - CycleCare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>➕ Ajouter un Nouveau Cycle</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            <div class="mb-3">
+                                <label for="start_date" class="form-label">Date de début des règles</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="cycle_length" class="form-label">Durée du cycle (jours)</label>
+                                <input type="number" class="form-control" id="cycle_length" name="cycle_length" 
+                                       value="28" min="21" max="35">
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+                                <a href="{{ url_for('index') }}" class="btn btn-secondary">↩️ Retour</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
