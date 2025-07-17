@@ -1,0 +1,83 @@
+# Base de données SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# Variables d'environnement
+.env
+.env.local
+.env.production
+
+# Fichiers Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Logs
+*.log
+logs/
+
+# Tests
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+backup_*.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Railway
+.railway/
+
+# Node modules (si utilisé)
+node_modules/
+
+# Fichiers de configuration locale
+config_local.py
+local_settings.py
